@@ -1,79 +1,79 @@
-name: Databricks Bundle Deploy  # Nome do pipeline exibido no Azure DevOps
+# name: Databricks Bundle Deploy  # Nome do pipeline exibido no Azure DevOps
 
-trigger:
-  branches:
-    include:
-      - qa
-      - main            # Pipeline dispara apenas em branches de QA e Produção
-  paths:
-    include:
-      - databricks.yml  # Mudanças no bundle
-      - "**/*.yml"      # Infra/configuração
-      - "**/*.py"       # Código Spark / jobs
-      - "**/*.sql"      # Queries e pipelines SQL
+# trigger:
+#   branches:
+#     include:
+#       - qa
+#       - main            # Pipeline dispara apenas em branches de QA e Produção
+#   paths:
+#     include:
+#       - databricks.yml  # Mudanças no bundle
+#       - "**/*.yml"      # Infra/configuração
+#       - "**/*.py"       # Código Spark / jobs
+#       - "**/*.sql"      # Queries e pipelines SQL
 
-pool:
-  vmImage: ubuntu-latest  # Agent Linux padrão usado para executar o pipeline
+# pool:
+#   vmImage: ubuntu-latest  # Agent Linux padrão usado para executar o pipeline
 
-variables:
-  - group: demo-databricks-settings  # Variáveis sensíveis centralizadas (secrets e configs)
+# variables:
+#   - group: demo-databricks-settings  # Variáveis sensíveis centralizadas (secrets e configs)
 
-stages:
-- stage: Deploy
-  displayName: Deploy Databricks Bundle
-  jobs:
-  - job: deploy
-    displayName: Deploy Bundle
-    steps:
+# stages:
+# - stage: Deploy
+#   displayName: Deploy Databricks Bundle
+#   jobs:
+#   - job: deploy
+#     displayName: Deploy Bundle
+#     steps:
 
-    - checkout: self  # Faz pull do código do repositório
+#     - checkout: self  # Faz pull do código do repositório
 
-    # ---------------------------------------
-    # Install Databricks CLI (oficial)
-    # ---------------------------------------
-    - script: |
-        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-        databricks version
-      displayName: Install Databricks CLI  # Instala a CLI usada para validar e deployar bundles
+#     # ---------------------------------------
+#     # Install Databricks CLI (oficial)
+#     # ---------------------------------------
+#     - script: |
+#         curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+#         databricks version
+#       displayName: Install Databricks CLI  # Instala a CLI usada para validar e deployar bundles
 
-    # ---------------------------------------
-    # Configure Databricks Profile
-    # ---------------------------------------
-    - script: |
-        CONFIG_FILE=/tmp/.databrickscfg  # Arquivo de configuração temporário da CLI
+#     # ---------------------------------------
+#     # Configure Databricks Profile
+#     # ---------------------------------------
+#     - script: |
+#         CONFIG_FILE=/tmp/.databrickscfg  # Arquivo de configuração temporário da CLI
 
-        if [ "$(Build.SourceBranchName)" = "qa" ]; then
-          cat <<EOF > $CONFIG_FILE
-        [qa]
-        host = $(DATABRICKS_HOST_QA)
-        client_id = $(DATABRICKS_CLIENT_ID_QA)
-        client_secret = $(DATABRICKS_CLIENT_SECRET_QA)
-        EOF
-          echo "##vso[task.setvariable variable=TARGET]qa"  # Define target QA
-        else
-          cat <<EOF > $CONFIG_FILE
-        [prod]
-        host = $(DATABRICKS_HOST_PRD)
-        client_id = $(DATABRICKS_CLIENT_ID_PRD)
-        client_secret = $(DATABRICKS_CLIENT_SECRET_PRD)
-        EOF
-          echo "##vso[task.setvariable variable=TARGET]prod"  # Define target Produção
-        fi
+#         if [ "$(Build.SourceBranchName)" = "qa" ]; then
+#           cat <<EOF > $CONFIG_FILE
+#         [qa]
+#         host = $(DATABRICKS_HOST_QA)
+#         client_id = $(DATABRICKS_CLIENT_ID_QA)
+#         client_secret = $(DATABRICKS_CLIENT_SECRET_QA)
+#         EOF
+#           echo "##vso[task.setvariable variable=TARGET]qa"  # Define target QA
+#         else
+#           cat <<EOF > $CONFIG_FILE
+#         [prod]
+#         host = $(DATABRICKS_HOST_PRD)
+#         client_id = $(DATABRICKS_CLIENT_ID_PRD)
+#         client_secret = $(DATABRICKS_CLIENT_SECRET_PRD)
+#         EOF
+#           echo "##vso[task.setvariable variable=TARGET]prod"  # Define target Produção
+#         fi
 
-        echo "##vso[task.setvariable variable=DATABRICKS_CONFIG_FILE]$CONFIG_FILE"
-        # Informa à CLI qual arquivo de configuração usar
-      displayName: Configure Databricks Profile
+#         echo "##vso[task.setvariable variable=DATABRICKS_CONFIG_FILE]$CONFIG_FILE"
+#         # Informa à CLI qual arquivo de configuração usar
+#       displayName: Configure Databricks Profile
 
-    # ---------------------------------------
-    # Validate Bundle
-    # ---------------------------------------
-    - script: |
-        databricks bundle validate -t $(TARGET) -p $(TARGET)
-      displayName: Validate Bundle  # Valida sintaxe, recursos e targets antes do deploy
+#     # ---------------------------------------
+#     # Validate Bundle
+#     # ---------------------------------------
+#     - script: |
+#         databricks bundle validate -t $(TARGET) -p $(TARGET)
+#       displayName: Validate Bundle  # Valida sintaxe, recursos e targets antes do deploy
 
-    # ---------------------------------------
-    # Deploy Bundle
-    # ---------------------------------------
-    - script: |
-        databricks bundle deploy -t $(TARGET) -p $(TARGET)
-      displayName: Deploy Bundle  # Publica os recursos no workspace Databricks
+#     # ---------------------------------------
+#     # Deploy Bundle
+#     # ---------------------------------------
+#     - script: |
+#         databricks bundle deploy -t $(TARGET) -p $(TARGET)
+#       displayName: Deploy Bundle  # Publica os recursos no workspace Databricks
