@@ -21,19 +21,19 @@ targets:
       source_linked_deployment: False
       # Indica se o deploy está ligado diretamente ao código fonte (ex. pasta git_folder)
 
-      # tags:
-      #   environment: ${bundle.target}
-      #   # Tag padrão aplicada aos recursos
-      #   # Ajuda em governança, rastreabilidade e FinOps
+      tags:
+        environment: ${bundle.target}
+        # Tag padrão aplicada aos recursos
+        # Ajuda em governança, rastreabilidade e FinOps
 
-    # variables:
-    #   # Sobrescrita de variáveis específicas para o ambiente DEV
+    variables:
+      # Sobrescrita de variáveis específicas para o ambiente DEV
 
-    #   storage_account: adlsbigdataddceus2qa
-    #   # Conta de storage usada neste ambiente
+      storage_account: adlsbigdataddceus2qa
+      # Conta de storage usada neste ambiente
 
-    #   num_workers_cluster: 2
-    #   # Valor da variável reutilizada nos arquivos de configuração
+      num_workers_cluster: 2
+      # Valor da variável reutilizada nos arquivos de configuração
 
-    #   warehouse_name: Serverless Starter Warehouse
-    #   # Nome lógico do SQL Warehouse utilizado no DEV
+      warehouse_name: Serverless Starter Warehouse
+      # Nome lógico do SQL Warehouse utilizado no DEV
