@@ -1,0 +1,30 @@
+resources:
+  jobs:
+    simple_job:
+      name: simple_job
+      tasks:
+        - task_key: hello_world
+          notebook_task:
+            notebook_path: /../../src/simple.py
+            source: WORKSPACE
+          job_cluster_key: Job_cluster_dabs_D4S
+      job_clusters:
+        - job_cluster_key: Job_cluster_dabs_D4S
+          new_cluster:
+            spark_version: 17.3.x-scala2.13
+            azure_attributes:
+              first_on_demand: 1
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: -1
+            node_type_id: Standard_D4s_v3
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            data_security_mode: DATA_SECURITY_MODE_AUTO
+            runtime_engine: STANDARD
+            kind: CLASSIC_PREVIEW
+            is_single_node: false
+            autoscale:
+              min_workers: 1
+              max_workers: 4
+      queue:
+        enabled: true
